@@ -21,9 +21,7 @@ The plugin loops through all available image sizes and display it out to the use
 
 2. Activate the plugin.
 
-3. Go the Pages section within the WP-Admin.
-
-4. Click on Hierarchical Page View
+3. Go the Media Libray and select Edit on an Image OR Upload some new content.
 
 == Frequently Asked Questions ==
 
