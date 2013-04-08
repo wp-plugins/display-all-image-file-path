@@ -3,7 +3,7 @@
 Plugin Name: Display All Image File Path
 Plugin URI: http://plugins.justingivens.com/?pid=Display-All-Image-File-Path
 Description: The plugin loops through all available image sizes and display it out to the users on the Edit Media screen and when you upload new content only.
-Version: 1.1
+Version: 2.0
 Author: Justin D. Givens
 Author URI: http://plugins.justingivens.com/?aid=Display-All-Image-File-Path
 Copyright 2011 Justin D. Givens
@@ -22,25 +22,30 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-add_filter('attachment_fields_to_edit' , 'display_all_image_sizes_function' , 10 , 2);
-function display_all_image_sizes_function( $form_fields , $post ) {
-	if( ( stristr( $_SERVER['SCRIPT_NAME'] , '/wp-admin/media.php' ) !== FALSE ) || ( stristr( $_SERVER['SCRIPT_NAME'] , '/wp-admin/async-upload.php' ) ) ) {
-		$listArray = get_intermediate_image_sizes();
-		$x = 2;
-		foreach ($listArray as $imageSize) {
-			$image_attributes = wp_get_attachment_image_src( $post->ID , $imageSize );
-			if( !empty( $image_attributes[0] ) ) {
-				$form_fields["image_url$x"] = array(
-					'label'      => __("Additional File $x"),
-					'input'      => 'html',
-					'html'       => "<input type='text' class='text urlfield' readonly='readonly' name='attachments[$post->ID][url$x]' value='$image_attributes[0]' /><br />",
-					'value'      => $image_attributes[0],
-					'helps'      => __("Location of the image path for $imageSize. Dimensions: $image_attributes[1] x $image_attributes[2]")
-				);
-				$x++;
-			}
+function iiab_add_custom_box_image_path() {
+    add_meta_box( 
+        'iiab_display_image_paths',
+        __( 'Display All Image File Path', 'iiab' ),
+        'iiab_inner_custom_box_image_paths',
+        'attachment',
+        'normal',
+        'low'
+    );
+}
+add_action( 'add_meta_boxes', 'iiab_add_custom_box_image_path' );
+
+function iiab_inner_custom_box_image_paths( $post ) {
+	$listArray = get_intermediate_image_sizes();
+	$x = 2;
+	foreach ($listArray as $imageSize) {
+		$image_attributes = wp_get_attachment_image_src( $post->ID , $imageSize );
+		if( !empty( $image_attributes[0] ) ) {
+			echo __( "Additional File $x" , 'iiab' ) . "<input type='text' style=\"width:100%;\" onclick=\"this.select()\" readonly='readonly' name='attachments[$post->ID][url$x]' value='$image_attributes[0]' /><br />" . __( 'Location of the image path for <strong>' .$imageSize . '</strong>. Dimensions: ' . $image_attributes[1] . ' x ' . $image_attributes[2] , 'iiab' ) . '<br /><br />';
+			$x++;
 		}
 	}
-	return $form_fields;
+	if( $x == 2 ) {
+		_e( 'This attachment does not have any additional file paths.' , 'iiab' );
+	}
 }
 ?>
